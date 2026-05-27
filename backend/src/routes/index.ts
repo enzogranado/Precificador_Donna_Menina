@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import healthRouter from './health';
 import precificacaoRouter from './precificacao';
+import materiaisRouter from './materiais';
+import custosFixosRouter from './custosFixos';
+import configTempoRouter from './configTempo';
+import produtosRouter from './produtos';
 
 const router = Router();
 
 router.use('/health', healthRouter);
 router.use('/precificacao', precificacaoRouter);
+router.use('/materiais', materiaisRouter);
+router.use('/custosfixos', custosFixosRouter);
+router.use('/configtempo', configTempoRouter);
+router.use('/produtos', produtosRouter);
 
 export default router;

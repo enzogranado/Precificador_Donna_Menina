@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 
-// Tipagens e Constantes Mocks
+// Tipagens
 import type { User, Material, MaterialUsado, Produto, CustoFixo, ConfiguracaoTempo } from './types';
-import { INGREDIENTES_MOCK, CUSTOS_FIXOS_MOCK, CONFIG_TEMPO_MOCK, PRODUTOS_MOCK } from './constants/mockData';
+
+const API_BASE = 'http://localhost:3001/api';
 
 // Componentes Globais
 import Header from './components/Header';
@@ -35,10 +36,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Materiais (Parte 1)
-  const [materiais, setMateriais] = useState<Material[]>(() => {
-    const saved = localStorage.getItem('donamenina_materiais');
-    return saved ? JSON.parse(saved) : INGREDIENTES_MOCK;
-  });
+  const [materiais, setMateriais] = useState<Material[]>([]);
 
   const [searchMaterial, setSearchMaterial] = useState('');
   const [materialForm, setMaterialForm] = useState<Partial<Material>>({
@@ -50,10 +48,7 @@ export default function App() {
   const [editingMaterialId, setEditingMaterialId] = useState<string | null>(null);
 
   // Custos Fixos (Parte 3)
-  const [custosFixos, setCustosFixos] = useState<CustoFixo[]>(() => {
-    const saved = localStorage.getItem('donamenina_custos_fixos');
-    return saved ? JSON.parse(saved) : CUSTOS_FIXOS_MOCK;
-  });
+  const [custosFixos, setCustosFixos] = useState<CustoFixo[]>([]);
 
   const [custoFixoForm, setCustoFixoForm] = useState<Partial<CustoFixo>>({
     nome: '',
@@ -61,16 +56,13 @@ export default function App() {
   });
 
   // Configuração do Tempo (Parte 3)
-  const [configTempo, setConfigTempo] = useState<ConfiguracaoTempo>(() => {
-    const saved = localStorage.getItem('donamenina_config_tempo');
-    return saved ? JSON.parse(saved) : CONFIG_TEMPO_MOCK;
+  const [configTempo, setConfigTempo] = useState<ConfiguracaoTempo>({
+    proLabore: 2500,
+    horasTrabalhoMes: 120
   });
 
   // Produtos (Parte 2)
-  const [produtos, setProdutos] = useState<Produto[]>(() => {
-    const saved = localStorage.getItem('donamenina_produtos');
-    return saved ? JSON.parse(saved) : PRODUTOS_MOCK;
-  });
+  const [produtos, setProdutos] = useState<Produto[]>([]);
 
   const [searchProduto, setSearchProduto] = useState('');
   const [isCreatingProduto, setIsCreatingProduto] = useState(false);
@@ -108,21 +100,30 @@ export default function App() {
     localStorage.setItem('donamenina_user', JSON.stringify(user));
   }, [user]);
 
+  // Carregamento de dados a partir da API do MongoDB Atlas
   useEffect(() => {
-    localStorage.setItem('donamenina_materiais', JSON.stringify(materiais));
-  }, [materiais]);
+    if (!user.isLoggedIn) return;
 
-  useEffect(() => {
-    localStorage.setItem('donamenina_custos_fixos', JSON.stringify(custosFixos));
-  }, [custosFixos]);
+    const carregarDados = async () => {
+      try {
+        const [resMat, resCustos, resConfig, resProd] = await Promise.all([
+          fetch(`${API_BASE}/materiais`),
+          fetch(`${API_BASE}/custosfixos`),
+          fetch(`${API_BASE}/configtempo`),
+          fetch(`${API_BASE}/produtos`)
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem('donamenina_config_tempo', JSON.stringify(configTempo));
-  }, [configTempo]);
+        if (resMat.ok) setMateriais(await resMat.json());
+        if (resCustos.ok) setCustosFixos(await resCustos.json());
+        if (resConfig.ok) setConfigTempo(await resConfig.json());
+        if (resProd.ok) setProdutos(await resProd.json());
+      } catch (err) {
+        console.error('Erro ao carregar dados do banco:', err);
+      }
+    };
 
-  useEffect(() => {
-    localStorage.setItem('donamenina_produtos', JSON.stringify(produtos));
-  }, [produtos]);
+    carregarDados();
+  }, [user.isLoggedIn]);
 
   // ==========================================
   // LÓGICA DE CÁLCULO DE CUSTOS OPERACIONAIS
@@ -196,7 +197,7 @@ export default function App() {
   // OPERAÇÕES: MATERIAIS
   // ==========================================
 
-  const handleSaveMaterial = (e: React.FormEvent) => {
+  const handleSaveMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     const { nome, precoTotal, quantidadeTotal, unidadeMedida } = materialForm;
 
@@ -207,34 +208,49 @@ export default function App() {
 
     const precoUnitario = precoTotal / quantidadeTotal;
 
-    if (editingMaterialId) {
-      setMateriais(prev => prev.map(m => m.id === editingMaterialId ? {
-        ...m,
-        nome: nome.trim(),
-        precoTotal,
-        quantidadeTotal,
-        unidadeMedida: unidadeMedida as 'g' | 'ml' | 'un',
-        precoUnitario
-      } : m));
-      setEditingMaterialId(null);
-    } else {
-      const newMaterial: Material = {
-        id: `mat-${Date.now()}`,
+    try {
+      const body: any = {
         nome: nome.trim(),
         precoTotal,
         quantidadeTotal,
         unidadeMedida: unidadeMedida as 'g' | 'ml' | 'un',
         precoUnitario
       };
-      setMateriais(prev => [newMaterial, ...prev]);
-    }
+      if (editingMaterialId) {
+        body.id = editingMaterialId;
+      }
 
-    setMaterialForm({
-      nome: '',
-      precoTotal: undefined,
-      quantidadeTotal: undefined,
-      unidadeMedida: 'g'
-    });
+      const response = await fetch(`${API_BASE}/materiais`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        alert(errData.error || 'Erro ao salvar material.');
+        return;
+      }
+
+      const savedMaterial = await response.json();
+
+      if (editingMaterialId) {
+        setMateriais(prev => prev.map(m => m.id === editingMaterialId ? savedMaterial : m));
+        setEditingMaterialId(null);
+      } else {
+        setMateriais(prev => [savedMaterial, ...prev]);
+      }
+
+      setMaterialForm({
+        nome: '',
+        precoTotal: undefined,
+        quantidadeTotal: undefined,
+        unidadeMedida: 'g'
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Ocorreu um erro ao conectar ao servidor.');
+    }
   };
 
   const handleEditMaterial = (mat: Material) => {
@@ -247,7 +263,7 @@ export default function App() {
     });
   };
 
-  const handleDeleteMaterial = (id: string) => {
+  const handleDeleteMaterial = async (id: string) => {
     const emUso = produtos.some(p => p.materiaisUsados.some(mu => mu.materialId === id));
     if (emUso) {
       alert('Este material não pode ser excluído porque está sendo usado na receita de um ou mais produtos cadastrados.');
@@ -255,10 +271,25 @@ export default function App() {
     }
 
     if (window.confirm('Tem certeza que deseja remover este material?')) {
-      setMateriais(prev => prev.filter(m => m.id !== id));
-      if (editingMaterialId === id) {
-        setEditingMaterialId(null);
-        setMaterialForm({ nome: '', precoTotal: undefined, quantidadeTotal: undefined, unidadeMedida: 'g' });
+      try {
+        const response = await fetch(`${API_BASE}/materiais/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || 'Erro ao deletar material.');
+          return;
+        }
+
+        setMateriais(prev => prev.filter(m => m.id !== id));
+        if (editingMaterialId === id) {
+          setEditingMaterialId(null);
+          setMaterialForm({ nome: '', precoTotal: undefined, quantidadeTotal: undefined, unidadeMedida: 'g' });
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ocorreu um erro ao conectar ao servidor.');
       }
     }
   };
@@ -267,7 +298,7 @@ export default function App() {
   // OPERAÇÕES: CUSTOS FIXOS E TEMPO
   // ==========================================
 
-  const handleSaveCustoFixo = (e: React.FormEvent) => {
+  const handleSaveCustoFixo = async (e: React.FormEvent) => {
     e.preventDefault();
     const { nome, valor } = custoFixoForm;
 
@@ -276,25 +307,67 @@ export default function App() {
       return;
     }
 
-    const newCusto: CustoFixo = {
-      id: `fix-${Date.now()}`,
-      nome: nome.trim(),
-      valor
+    try {
+      const response = await fetch(`${API_BASE}/custosfixos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: nome.trim(), valor })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        alert(errData.error || 'Erro ao salvar despesa fixa.');
+        return;
+      }
+
+      const savedCusto = await response.json();
+      setCustosFixos(prev => [...prev, savedCusto]);
+      setCustoFixoForm({ nome: '', valor: undefined });
+    } catch (err) {
+      console.error(err);
+      alert('Ocorreu um erro ao conectar ao servidor.');
+    }
+  };
+
+  const handleDeleteCustoFixo = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja remover esta despesa fixa?')) {
+      try {
+        const response = await fetch(`${API_BASE}/custosfixos/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || 'Erro ao deletar despesa fixa.');
+          return;
+        }
+
+        setCustosFixos(prev => prev.filter(c => c.id !== id));
+      } catch (err) {
+        console.error(err);
+        alert('Ocorreu um erro ao conectar ao servidor.');
+      }
+    }
+  };
+
+  const handleConfigTempoChange = async (field: keyof ConfiguracaoTempo, value: number) => {
+    const novoValor = Math.max(1, value);
+    const novaConfig = {
+      ...configTempo,
+      [field]: novoValor
     };
+    
+    setConfigTempo(novaConfig);
 
-    setCustosFixos(prev => [...prev, newCusto]);
-    setCustoFixoForm({ nome: '', valor: undefined });
-  };
-
-  const handleDeleteCustoFixo = (id: string) => {
-    setCustosFixos(prev => prev.filter(c => c.id !== id));
-  };
-
-  const handleConfigTempoChange = (field: keyof ConfiguracaoTempo, value: number) => {
-    setConfigTempo(prev => ({
-      ...prev,
-      [field]: Math.max(1, value)
-    }));
+    try {
+      await fetch(`${API_BASE}/configtempo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(novaConfig)
+      });
+    } catch (err) {
+      console.error('Erro ao salvar parâmetros de tempo em background:', err);
+    }
   };
 
   // ==========================================
@@ -335,7 +408,7 @@ export default function App() {
     }));
   };
 
-  const handleSaveProduto = (e: React.FormEvent) => {
+  const handleSaveProduto = async (e: React.FormEvent) => {
     e.preventDefault();
     const { nome, descricao, tempoProducao, margemLucro, materiaisUsados, rendimento } = produtoForm;
 
@@ -350,39 +423,54 @@ export default function App() {
       }
     }
 
-    if (editingProdutoId) {
-      setProdutos(prev => prev.map(p => p.id === editingProdutoId ? {
-        ...p,
+    try {
+      const body: any = {
         nome: nome.trim(),
         descricao: descricao.trim(),
         tempoProducao,
         margemLucro,
-        materiaisUsados,
-        rendimento
-      } : p));
-      setEditingProdutoId(null);
-    } else {
-      const newProd: Produto = {
-        id: `prod-${Date.now()}`,
-        nome: nome.trim(),
-        descricao: descricao.trim(),
-        tempoProducao,
-        margemLucro,
-        materiaisUsados,
-        rendimento
+        rendimento,
+        materiaisUsados
       };
-      setProdutos(prev => [newProd, ...prev]);
-    }
 
-    setProdutoForm({
-      nome: '',
-      descricao: '',
-      tempoProducao: 20,
-      margemLucro: 40,
-      materiaisUsados: [],
-      rendimento: 1
-    });
-    setIsCreatingProduto(false);
+      if (editingProdutoId) {
+        body.id = editingProdutoId;
+      }
+
+      const response = await fetch(`${API_BASE}/produtos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        alert(errData.error || 'Erro ao salvar produto.');
+        return;
+      }
+
+      const savedProd = await response.json();
+
+      if (editingProdutoId) {
+        setProdutos(prev => prev.map(p => p.id === editingProdutoId ? savedProd : p));
+        setEditingProdutoId(null);
+      } else {
+        setProdutos(prev => [savedProd, ...prev]);
+      }
+
+      setProdutoForm({
+        nome: '',
+        descricao: '',
+        tempoProducao: 20,
+        margemLucro: 40,
+        materiaisUsados: [],
+        rendimento: 1
+      });
+      setIsCreatingProduto(false);
+    } catch (err) {
+      console.error(err);
+      alert('Ocorreu um erro ao conectar ao servidor.');
+    }
   };
 
   const handleEditProduto = (prod: Produto) => {
@@ -398,10 +486,25 @@ export default function App() {
     setIsCreatingProduto(true);
   };
 
-  const handleDeleteProduto = (id: string) => {
+  const handleDeleteProduto = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este produto?')) {
-      setProdutos(prev => prev.filter(p => p.id !== id));
-      if (expandedProdutoId === id) setExpandedProdutoId(null);
+      try {
+        const response = await fetch(`${API_BASE}/produtos/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || 'Erro ao excluir produto.');
+          return;
+        }
+
+        setProdutos(prev => prev.filter(p => p.id !== id));
+        if (expandedProdutoId === id) setExpandedProdutoId(null);
+      } catch (err) {
+        console.error(err);
+        alert('Ocorreu um erro ao conectar ao servidor.');
+      }
     }
   };
 
