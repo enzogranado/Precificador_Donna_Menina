@@ -150,9 +150,8 @@ export default function App() {
     const custoMaoObra = prod.tempoProducao * custoPorMinuto;
     const custoTotal = custoMateriais + custoMaoObra;
 
-    // Preço de venda sugerido (Markup Divisor)
-    const divisor = (100 - prod.margemLucro) / 100;
-    const precoVenda = divisor > 0 ? (custoTotal / divisor) : custoTotal * 1.5;
+    // Preço de venda sugerido (Margem simples de markup multiplicada sobre o custo)
+    const precoVenda = custoTotal * (1 + prod.margemLucro / 100);
 
     const lucroReal = precoVenda - custoTotal;
     const rendimento = prod.rendimento || 1;
@@ -412,8 +411,8 @@ export default function App() {
     e.preventDefault();
     const { nome, descricao, tempoProducao, margemLucro, materiaisUsados, rendimento } = produtoForm;
 
-    if (!nome.trim() || tempoProducao <= 0 || margemLucro < 0 || margemLucro >= 100 || rendimento <= 0) {
-      alert('Preencha os campos obrigatórios com valores válidos. A margem deve ser menor que 100% e o rendimento maior que 0.');
+    if (!nome.trim() || tempoProducao <= 0 || margemLucro < 0 || rendimento <= 0) {
+      alert('Preencha os campos obrigatórios com valores válidos. A margem deve ser maior ou igual a 0% e o rendimento maior que 0.');
       return;
     }
 

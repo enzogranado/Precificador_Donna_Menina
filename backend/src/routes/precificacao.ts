@@ -18,21 +18,12 @@ router.post('/calcular', (req: Request, res: Response): any => {
 
     const custoTotalItem = Number(custoProduto) + Number(custoEmbalagem);
     
-    // Fórmula de Markup / Divisor de Preço de Venda
-    const somatorioPercentuais = Number(impostosPercentual) + Number(comissaoPercentual) + Number(margemLucroPercentual);
-    
-    if (somatorioPercentuais >= 100) {
-      return res.status(400).json({ 
-        error: 'A soma dos percentuais (impostos, comissão e margem de lucro) não pode ser igual ou maior que 100% no modelo Markup Divisor.' 
-      });
-    }
-
-    const divisor = (100 - somatorioPercentuais) / 100;
-    const precoVendaSugerido = custoTotalItem / divisor;
+    // Fórmula de Markup Multiplicador Simples sobre o Custo
+    const precoVendaSugerido = custoTotalItem * (1 + Number(margemLucroPercentual) / 100);
     
     const valorImposto = precoVendaSugerido * (Number(impostosPercentual) / 100);
     const valorComissao = precoVendaSugerido * (Number(comissaoPercentual) / 100);
-    const lucroLiquido = precoVendaSugerido * (Number(margemLucroPercentual) / 100);
+    const lucroLiquido = precoVendaSugerido - custoTotalItem - valorImposto - valorComissao;
 
     return res.json({
       custoTotalItem,
