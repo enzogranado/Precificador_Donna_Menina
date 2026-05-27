@@ -16,8 +16,8 @@ interface ProdutosProps {
   setIsCreatingProduto: (v: boolean) => void;
   editingProdutoId: string | null;
   setEditingProdutoId: (v: string | null) => void;
-  produtoForm: { nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; };
-  setProdutoForm: React.Dispatch<React.SetStateAction<{ nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; }>>;
+  produtoForm: { nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; };
+  setProdutoForm: React.Dispatch<React.SetStateAction<{ nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; }>>;
   tempMaterialId: string;
   setTempMaterialId: (v: string) => void;
   tempQuantidade: number | undefined;
@@ -35,6 +35,9 @@ interface ProdutosProps {
     custoTotal: number;
     precoVenda: number;
     lucroReal: number;
+    precoVendaUnitario: number;
+    custoUnitario: number;
+    lucroUnitario: number;
   };
 }
 
@@ -81,13 +84,17 @@ export default function Produtos({
     const divisor = (100 - produtoForm.margemLucro) / 100;
     const precoVenda = divisor > 0 ? (custoTotal / divisor) : custoTotal * 1.5;
     const lucroReal = precoVenda - custoTotal;
+    const rendimento = produtoForm.rendimento || 1;
 
     return {
       custoMateriais,
       custoMaoObra,
       custoTotal,
       precoVenda,
-      lucroReal
+      lucroReal,
+      precoVendaUnitario: precoVenda / rendimento,
+      custoUnitario: custoTotal / rendimento,
+      lucroUnitario: lucroReal / rendimento
     };
   };
 
@@ -116,7 +123,8 @@ export default function Produtos({
                   descricao: '',
                   tempoProducao: 20,
                   margemLucro: 40,
-                  materiaisUsados: []
+                  materiaisUsados: [],
+                  rendimento: 1
                 });
                 setIsCreatingProduto(true);
               }}
@@ -179,15 +187,27 @@ export default function Produtos({
                           <span className="badge success">
                             Margem: {p.margemLucro}%
                           </span>
+                          {p.rendimento && p.rendimento > 1 && (
+                            <span className="badge warning">
+                              Rendimento: {p.rendimento} un.
+                            </span>
+                          )}
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                         <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Preço Venda Sugerido</span>
-                          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-gold)' }}>R$ {calc.precoVenda.toFixed(2)}</div>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            {p.rendimento && p.rendimento > 1 ? 'Venda Sugerida / Unidade' : 'Preço Venda Sugerido'}
+                          </span>
+                          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-gold)' }}>
+                            R$ {(p.rendimento && p.rendimento > 1 ? calc.precoVendaUnitario : calc.precoVenda).toFixed(2)}
+                          </div>
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
-                            Lucro Real: R$ {calc.lucroReal.toFixed(2)} / un
+                            {p.rendimento && p.rendimento > 1 
+                              ? `Lucro Unitário: R$ ${calc.lucroUnitario.toFixed(2)}`
+                              : `Lucro Real: R$ ${calc.lucroReal.toFixed(2)}`
+                            }
                           </span>
                         </div>
 
@@ -304,6 +324,27 @@ export default function Produtos({
                                 <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {calc.lucroReal.toFixed(2)}</span>
                               </div>
                             </div>
+                            {p.rendimento && p.rendimento > 1 && (
+                              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px dashed rgba(197, 163, 94, 0.25)' }}>
+                                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-gold)', marginBottom: '0.5rem' }}>
+                                  Análise Individual (Rendimento: {p.rendimento} un)
+                                </h4>
+                                <div className="breakdown-table" style={{ background: '#ffffff', borderRadius: '8px', padding: '0.4rem', border: '1px solid rgba(197, 163, 94, 0.08)' }}>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
+                                    <span className="breakdown-name">Custo Unitário</span>
+                                    <span className="breakdown-val">R$ {calc.custoUnitario.toFixed(2)}</span>
+                                  </div>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
+                                    <span className="breakdown-name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Venda Sugerida/Un</span>
+                                    <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {calc.precoVendaUnitario.toFixed(2)}</span>
+                                  </div>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem', borderBottom: 'none' }}>
+                                    <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 600 }}>Lucro Unitário</span>
+                                    <span className="breakdown-val success">R$ {calc.lucroUnitario.toFixed(2)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -360,6 +401,24 @@ export default function Produtos({
                     value={produtoForm.descricao}
                     onChange={e => setProdutoForm(prev => ({ ...prev, descricao: e.target.value }))}
                   />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="prod-rendimento">
+                    Rendimento do Lote / Barra (Unidades) *
+                    <span className="form-label-value">{produtoForm.rendimento} unidades</span>
+                  </label>
+                  <input 
+                    id="prod-rendimento"
+                    type="number"
+                    min="1"
+                    className="premium-input"
+                    placeholder="Ex: 8 sabonetes da barra, 1 vela..."
+                    value={produtoForm.rendimento}
+                    onChange={e => setProdutoForm(prev => ({ ...prev, rendimento: Math.max(1, parseInt(e.target.value) || 1) }))}
+                    required
+                  />
+                  <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Indique quantas unidades menores esta receita/barra rende (padrão: 1).</p>
                 </div>
 
                 <div className="flex-row-gap">
@@ -559,6 +618,28 @@ export default function Produtos({
                       <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {resumoForm.lucroReal.toFixed(2)}</span>
                     </div>
                   </div>
+
+                  {produtoForm.rendimento > 1 && (
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px dashed rgba(197, 163, 94, 0.25)' }}>
+                      <h4 style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-gold)', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
+                        Análise por Unidade Individual (Rendimento: {produtoForm.rendimento} un)
+                      </h4>
+                      <div className="breakdown-table" style={{ background: 'var(--bg-subtle)', borderRadius: '8px', padding: '0.5rem' }}>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name">Custo por Sabonete/Vela</span>
+                          <span className="breakdown-val">R$ {resumoForm.custoUnitario.toFixed(2)}</span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Preço de Venda Unitário</span>
+                          <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {resumoForm.precoVendaUnitario.toFixed(2)}</span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem', borderBottom: 'none' }}>
+                          <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 600 }}>Lucro Líquido Individual</span>
+                          <span className="breakdown-val success">R$ {resumoForm.lucroUnitario.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Nota de Cálculo */}
                   <InfoNote 

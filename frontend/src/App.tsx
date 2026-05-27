@@ -83,12 +83,14 @@ export default function App() {
     tempoProducao: number;
     margemLucro: number;
     materiaisUsados: MaterialUsado[];
+    rendimento: number;
   }>({
     nome: '',
     descricao: '',
     tempoProducao: 20,
     margemLucro: 40,
-    materiaisUsados: []
+    materiaisUsados: [],
+    rendimento: 1
   });
 
   // Inserção temporária de material no produto
@@ -152,13 +154,17 @@ export default function App() {
     const precoVenda = divisor > 0 ? (custoTotal / divisor) : custoTotal * 1.5;
 
     const lucroReal = precoVenda - custoTotal;
+    const rendimento = prod.rendimento || 1;
 
     return {
       custoMateriais,
       custoMaoObra,
       custoTotal,
       precoVenda,
-      lucroReal
+      lucroReal,
+      precoVendaUnitario: precoVenda / rendimento,
+      custoUnitario: custoTotal / rendimento,
+      lucroUnitario: lucroReal / rendimento
     };
   };
 
@@ -331,10 +337,10 @@ export default function App() {
 
   const handleSaveProduto = (e: React.FormEvent) => {
     e.preventDefault();
-    const { nome, descricao, tempoProducao, margemLucro, materiaisUsados } = produtoForm;
+    const { nome, descricao, tempoProducao, margemLucro, materiaisUsados, rendimento } = produtoForm;
 
-    if (!nome.trim() || tempoProducao <= 0 || margemLucro < 0 || margemLucro >= 100) {
-      alert('Preencha os campos obrigatórios com valores válidos. A margem deve ser menor que 100%.');
+    if (!nome.trim() || tempoProducao <= 0 || margemLucro < 0 || margemLucro >= 100 || rendimento <= 0) {
+      alert('Preencha os campos obrigatórios com valores válidos. A margem deve ser menor que 100% e o rendimento maior que 0.');
       return;
     }
 
@@ -351,7 +357,8 @@ export default function App() {
         descricao: descricao.trim(),
         tempoProducao,
         margemLucro,
-        materiaisUsados
+        materiaisUsados,
+        rendimento
       } : p));
       setEditingProdutoId(null);
     } else {
@@ -361,7 +368,8 @@ export default function App() {
         descricao: descricao.trim(),
         tempoProducao,
         margemLucro,
-        materiaisUsados
+        materiaisUsados,
+        rendimento
       };
       setProdutos(prev => [newProd, ...prev]);
     }
@@ -371,7 +379,8 @@ export default function App() {
       descricao: '',
       tempoProducao: 20,
       margemLucro: 40,
-      materiaisUsados: []
+      materiaisUsados: [],
+      rendimento: 1
     });
     setIsCreatingProduto(false);
   };
@@ -383,7 +392,8 @@ export default function App() {
       descricao: prod.descricao,
       tempoProducao: prod.tempoProducao,
       margemLucro: prod.margemLucro,
-      materiaisUsados: [...prod.materiaisUsados]
+      materiaisUsados: [...prod.materiaisUsados],
+      rendimento: prod.rendimento || 1
     });
     setIsCreatingProduto(true);
   };

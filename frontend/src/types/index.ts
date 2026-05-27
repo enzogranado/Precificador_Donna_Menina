@@ -24,6 +24,7 @@ export interface Produto {
   tempoProducao: number; // em minutos
   margemLucro: number; // em %
   materiaisUsados: MaterialUsado[];
+  rendimento: number; // quantidade de unidades produzidas por lote/barra
 }
 
 export interface CustoFixo {

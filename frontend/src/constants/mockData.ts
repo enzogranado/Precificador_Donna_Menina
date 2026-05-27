@@ -29,6 +29,7 @@ export const PRODUTOS_MOCK: Produto[] = [
     descricao: 'Vela de cera de coco feita à mão no pote de vidro porta-vela premium com aroma relaxante.',
     tempoProducao: 25,
     margemLucro: 45,
+    rendimento: 1,
     materiaisUsados: [
       { materialId: 'mat-1', quantidadeNecessaria: 140 }, // Cera de Coco
       { materialId: 'mat-2', quantidadeNecessaria: 15 },  // Essência Flor Cerejeira
@@ -42,6 +43,7 @@ export const PRODUTOS_MOCK: Produto[] = [
     descricao: 'Sabonete artesanal botânico enriquecido com flores secas de calêndula altamente hidratante.',
     tempoProducao: 15,
     margemLucro: 40,
+    rendimento: 8,
     materiaisUsados: [
       { materialId: 'mat-6', quantidadeNecessaria: 90 },  // Glicerina
       { materialId: 'mat-3', quantidadeNecessaria: 5 },   // Essência Capim Limão
