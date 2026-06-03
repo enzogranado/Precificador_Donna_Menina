@@ -5,6 +5,7 @@ import EmptyState from '../components/EmptyState';
 import InfoNote from '../components/InfoNote';
 import PriceDisplayBox from '../components/PriceDisplayBox';
 import MetricCard from '../components/MetricCard';
+import DecimalInput from '../components/DecimalInput';
 
 interface ProdutosProps {
   produtos: Produto[];
@@ -20,8 +21,8 @@ interface ProdutosProps {
   setProdutoForm: React.Dispatch<React.SetStateAction<{ nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; }>>;
   tempMaterialId: string;
   setTempMaterialId: (v: string) => void;
-  tempQuantidade: number | undefined;
-  setTempQuantidade: (v: number | undefined) => void;
+  tempQuantidade: string;
+  setTempQuantidade: (v: string) => void;
   expandedProdutoId: string | null;
   setExpandedProdutoId: (v: string | null) => void;
   handleAddMaterialAoProduto: () => void;
@@ -496,13 +497,15 @@ export default function Produtos({
                         </label>
                         <input 
                           id="prod-mat-qtd"
-                          type="number"
-                          step="0.01"
-                          min="0.01"
+                          type="text"
+                          inputMode="decimal"
                           className="premium-input"
-                          placeholder="0.00"
-                          value={tempQuantidade === undefined ? '' : tempQuantidade}
-                          onChange={e => setTempQuantidade(parseFloat(e.target.value) || undefined)}
+                          placeholder="0,00"
+                          value={tempQuantidade}
+                          onChange={e => {
+                            const val = e.target.value.replace(/[^0-9.,]/g, '');
+                            setTempQuantidade(val);
+                          }}
                         />
                       </div>
                     )}
@@ -535,15 +538,32 @@ export default function Produtos({
                       const custoItem = mu.quantidadeNecessaria * mat.precoUnitario;
 
                       return (
-                        <div key={mu.materialId} className="selected-material-item">
-                          <div className="selected-material-info">
-                            <span className="selected-material-name">{mat.nome}</span>
-                            <span className="selected-material-meta">
-                              {mu.quantidadeNecessaria} {mat.unidadeMedida} × R$ {mat.precoUnitario.toFixed(3)}
-                            </span>
+                        <div key={mu.materialId} className="selected-material-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: 'var(--bg-subtle)', borderRadius: '8px', marginBottom: '0.5rem', border: '1px solid rgba(197, 163, 94, 0.08)' }}>
+                          <div className="selected-material-info" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <span className="selected-material-name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{mat.nome}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Qtd:</span>
+                              <DecimalInput
+                                value={mu.quantidadeNecessaria}
+                                onChange={val => {
+                                  const novaQtd = val === undefined ? 0 : val;
+                                  setProdutoForm(prev => ({
+                                    ...prev,
+                                    materiaisUsados: prev.materiaisUsados.map(item =>
+                                      item.materialId === mu.materialId ? { ...item, quantidadeNecessaria: novaQtd } : item
+                                    )
+                                  }));
+                                }}
+                                className="premium-input"
+                                style={{ width: '85px', padding: '0.2rem 0.4rem', height: '28px', fontSize: '0.85rem' }}
+                              />
+                              <span className="selected-material-meta" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                {mat.unidadeMedida} × R$ {mat.precoUnitario.toFixed(3)}
+                              </span>
+                            </div>
                           </div>
-                          <div className="selected-material-actions">
-                            <span className="selected-material-cost">R$ {custoItem.toFixed(2)}</span>
+                          <div className="selected-material-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <span className="selected-material-cost" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>R$ {custoItem.toFixed(2)}</span>
                             <button 
                               type="button" 
                               className="btn-danger-outline"

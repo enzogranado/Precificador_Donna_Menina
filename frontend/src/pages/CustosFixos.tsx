@@ -3,6 +3,7 @@ import { Briefcase, Plus, Trash2, Clock } from 'lucide-react';
 import type { CustoFixo, ConfiguracaoTempo } from '../types';
 import EmptyState from '../components/EmptyState';
 import InfoNote from '../components/InfoNote';
+import DecimalInput from '../components/DecimalInput';
 
 interface CustosFixosProps {
   custosFixos: CustoFixo[];
@@ -69,15 +70,12 @@ export default function CustosFixos({
               <label className="form-label" htmlFor="custo-val">Valor Mensal *</label>
               <div className="input-wrapper">
                 <span className="input-prefix">R$</span>
-                <input 
+                <DecimalInput 
                   id="custo-val"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
                   className="premium-input has-prefix"
-                  placeholder="0.00"
-                  value={custoFixoForm.valor || ''}
-                  onChange={e => setCustoFixoForm(prev => ({ ...prev, valor: parseFloat(e.target.value) || undefined }))}
+                  placeholder="0,00"
+                  value={custoFixoForm.valor}
+                  onChange={val => setCustoFixoForm(prev => ({ ...prev, valor: val }))}
                   required
                 />
               </div>

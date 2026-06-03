@@ -87,7 +87,7 @@ export default function App() {
 
   // Inserção temporária de material no produto
   const [tempMaterialId, setTempMaterialId] = useState('');
-  const [tempQuantidade, setTempQuantidade] = useState<number | undefined>(undefined);
+  const [tempQuantidade, setTempQuantidade] = useState<string>('');
 
   // Visualização Detalhada do Produto
   const [expandedProdutoId, setExpandedProdutoId] = useState<string | null>(null);
@@ -374,7 +374,8 @@ export default function App() {
   // ==========================================
 
   const handleAddMaterialAoProduto = () => {
-    if (!tempMaterialId || tempQuantidade === undefined || tempQuantidade <= 0) {
+    const qty = parseFloat(tempQuantidade.replace(',', '.'));
+    if (!tempMaterialId || isNaN(qty) || qty <= 0) {
       alert('Selecione um material e insira uma quantidade válida.');
       return;
     }
@@ -385,19 +386,19 @@ export default function App() {
         ...prev,
         materiaisUsados: prev.materiaisUsados.map(mu => 
           mu.materialId === tempMaterialId 
-            ? { ...mu, quantidadeNecessaria: mu.quantidadeNecessaria + tempQuantidade }
+            ? { ...mu, quantidadeNecessaria: mu.quantidadeNecessaria + qty }
             : mu
         )
       }));
     } else {
       setProdutoForm(prev => ({
         ...prev,
-        materiaisUsados: [...prev.materiaisUsados, { materialId: tempMaterialId, quantidadeNecessaria: tempQuantidade }]
+        materiaisUsados: [...prev.materiaisUsados, { materialId: tempMaterialId, quantidadeNecessaria: qty }]
       }));
     }
 
     setTempMaterialId('');
-    setTempQuantidade(undefined);
+    setTempQuantidade('');
   };
 
   const handleRemoverMaterialDoProduto = (matId: string) => {

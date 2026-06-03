@@ -2,6 +2,7 @@ import React from 'react';
 import { Package, Layers, Search, Plus, Edit3, Trash2, X } from 'lucide-react';
 import type { Material } from '../types';
 import EmptyState from '../components/EmptyState';
+import DecimalInput from '../components/DecimalInput';
 
 interface MateriaisProps {
   materiais: Material[];
@@ -75,15 +76,12 @@ export default function Materiais({
               <label className="form-label" htmlFor="mat-preco">Preço de Compra *</label>
               <div className="input-wrapper">
                 <span className="input-prefix">R$</span>
-                <input 
+                <DecimalInput 
                   id="mat-preco"
-                  type="number" 
-                  step="0.01"
-                  min="0.01"
                   className="premium-input has-prefix"
-                  placeholder="0.00"
-                  value={materialForm.precoTotal || ''}
-                  onChange={e => setMaterialForm(prev => ({ ...prev, precoTotal: parseFloat(e.target.value) || undefined }))}
+                  placeholder="0,00"
+                  value={materialForm.precoTotal}
+                  onChange={val => setMaterialForm(prev => ({ ...prev, precoTotal: val }))}
                   required
                 />
               </div>
@@ -91,15 +89,12 @@ export default function Materiais({
 
             <div className="form-group">
               <label className="form-label" htmlFor="mat-qtd">Quantidade Comprada *</label>
-              <input 
+              <DecimalInput 
                 id="mat-qtd"
-                type="number" 
-                step="0.01"
-                min="0.01"
                 className="premium-input"
                 placeholder="Ex: 1000, 100, 50"
-                value={materialForm.quantidadeTotal || ''}
-                onChange={e => setMaterialForm(prev => ({ ...prev, quantidadeTotal: parseFloat(e.target.value) || undefined }))}
+                value={materialForm.quantidadeTotal}
+                onChange={val => setMaterialForm(prev => ({ ...prev, quantidadeTotal: val }))}
                 required
               />
             </div>
