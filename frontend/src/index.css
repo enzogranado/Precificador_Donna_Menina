@@ -39,6 +39,10 @@
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+html {
+  font-size: 18px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -142,7 +146,7 @@ body {
   border: none;
   padding: 0.75rem 1.5rem;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
@@ -228,7 +232,7 @@ body {
 }
 
 .card-title {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--text-primary);
@@ -244,7 +248,7 @@ body {
 .form-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
@@ -353,16 +357,18 @@ body {
 }
 
 .metric-label {
-  font-size: 0.7rem;
+  display: block;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .metric-value {
-  font-size: 1.4rem;
+  display: block;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -392,7 +398,7 @@ body {
 }
 
 .price-display-title {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -401,7 +407,7 @@ body {
 }
 
 .price-display-value {
-  font-size: 3rem;
+  font-size: 3.3rem;
   font-weight: 800;
   color: var(--color-gold);
   letter-spacing: -0.5px;
@@ -410,7 +416,7 @@ body {
 }
 
 .price-display-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--color-success);
   font-weight: 600;
   display: flex;
@@ -437,7 +443,7 @@ body {
 .premium-table th {
   background: var(--bg-subtle);
   padding: 1rem;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -447,7 +453,7 @@ body {
 
 .premium-table td {
   padding: 1rem;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   color: var(--text-primary);
   border-bottom: 1px solid rgba(197, 163, 94, 0.08);
 }
@@ -470,7 +476,7 @@ body {
   align-items: center;
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -630,7 +636,7 @@ body {
 }
 
 .selected-material-meta {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
@@ -655,7 +661,7 @@ body {
   border-radius: 0 8px 8px 0;
   padding: 1rem;
   margin-top: 1.5rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   line-height: 1.5;
   color: var(--text-secondary);
 }
@@ -686,7 +692,7 @@ body {
 }
 
 .breakdown-name {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -701,7 +707,7 @@ body {
 }
 
 .breakdown-percent {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   background: rgba(0, 0, 0, 0.04);
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
@@ -881,12 +887,12 @@ body {
 }
 
 .empty-state-desc {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   max-width: 300px;
 }
 
 .badge-unit {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
   background: var(--bg-subtle);
   padding: 0.15rem 0.35rem;

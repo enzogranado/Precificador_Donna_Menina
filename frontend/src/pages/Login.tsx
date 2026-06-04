@@ -69,10 +69,10 @@ export default function Login({
 
         <div className="login-info-box">
           🔑 <strong>Acesso Rápido de Demonstração:</strong><br />
-          E-mail: <code>contato@donamenina.com.br</code><br />
-          Senha: <code>donamenina123</code>
-          <p style={{ fontSize: '0.65rem', marginTop: '0.4rem', opacity: 0.8 }}>
-            *Para facilitar seus testes, você também pode inserir qualquer e-mail/senha.
+          E-mail: <code>citt@gmail.com</code><br />
+          Senha: <code>123</code>
+          <p style={{ fontSize: '0.75rem', marginTop: '0.4rem', opacity: 0.8 }}>
+            *Para acessar a ferramenta, utilize as credenciais registradas acima.
           </p>
         </div>
       </div>

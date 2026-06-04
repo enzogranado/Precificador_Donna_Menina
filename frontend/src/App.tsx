@@ -172,17 +172,36 @@ export default function App() {
   // OPERAÇÕES: AUTENTICAÇÃO
   // ==========================================
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput.trim() || !senhaInput.trim()) {
       setLoginError('Por favor, preencha todos os campos.');
       return;
     }
-    setUser({
-      email: emailInput,
-      isLoggedIn: true
-    });
-    setLoginError('');
+    
+    try {
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.trim(), password: senhaInput })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        setLoginError(errData.error || 'Falha ao realizar login.');
+        return;
+      }
+
+      const data = await response.json();
+      setUser({
+        email: data.user.email,
+        isLoggedIn: true
+      });
+      setLoginError('');
+    } catch (err) {
+      console.error(err);
+      setLoginError('Erro de conexão com o servidor.');
+    }
   };
 
   const handleLogout = () => {

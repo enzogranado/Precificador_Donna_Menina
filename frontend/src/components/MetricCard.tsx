@@ -15,10 +15,10 @@ export default function MetricCard({ label, value, badgeText, variation = 'defau
 
   return (
     <div className="metric-card">
-      <span className="metric-label">{label}</span>
-      <span className={getValueClass()}>{value}</span>
+      <div className="metric-label">{label}</div>
+      <div className={getValueClass()}>{value}</div>
       {badgeText && (
-        <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
           {badgeText}
         </p>
       )}

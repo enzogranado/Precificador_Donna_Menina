@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import app from './app';
+import User from './models/User';
+import crypto from 'crypto';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -13,15 +15,44 @@ if (!mongodbUri) {
   process.exit(1);
 }
 
+async function seedAdminUser() {
+  try {
+    const email = 'citt@gmail.com';
+    const rawPassword = '123';
+    const hashedPassword = crypto.createHash('sha256').update(rawPassword).digest('hex');
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const newUser = new User({
+        email,
+        password: hashedPassword
+      });
+      await newUser.save();
+      console.log(`🌱 Seeding: Usuário ${email} criado com sucesso!`);
+    } else {
+      console.log(`🌱 Seeding: Usuário ${email} já existe.`);
+      if (existingUser.password !== hashedPassword) {
+        existingUser.password = hashedPassword;
+        await existingUser.save();
+        console.log(`🌱 Seeding: Senha do usuário ${email} atualizada para '123'.`);
+      }
+    }
+  } catch (error: any) {
+    console.error('❌ Erro no seeding do usuário administrador:', error.message);
+  }
+}
+
 // Conectar ao MongoDB Atlas
 console.log('🔌 Conectando ao MongoDB Atlas...');
 mongoose.connect(mongodbUri)
   .then(() => {
     console.log('🔌 Conectado com sucesso ao MongoDB Atlas!');
-    // Iniciar o servidor após conectar ao banco de dados com sucesso
-    app.listen(port, () => {
-      console.log(`🚀 Servidor Donna Menina rodando em http://localhost:${port}`);
-      console.log(`📌 Rotas da API montadas sob http://localhost:${port}/api`);
+    // Executa o seeding do usuário antes de rodar o listen
+    seedAdminUser().then(() => {
+      app.listen(port, () => {
+        console.log(`🚀 Servidor Donna Menina rodando em http://localhost:${port}`);
+        console.log(`📌 Rotas da API montadas sob http://localhost:${port}/api`);
+      });
     });
   })
   .catch((err: any) => {
