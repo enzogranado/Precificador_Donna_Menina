@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
+import dns from 'dns';
 import mongoose from 'mongoose';
 import app from './app';
 import User from './models/User';
 import crypto from 'crypto';
+
+// Configurar DNS para usar Google DNS (resolve problemas com redes móveis)
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 
 // Carregar variáveis de ambiente
 dotenv.config();

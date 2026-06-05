@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 // Tipagens
 import type { User, Material, MaterialUsado, Produto, CustoFixo, ConfiguracaoTempo, Kit } from './types';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api';
 
 // Componentes Globais
 import Header from './components/Header';
