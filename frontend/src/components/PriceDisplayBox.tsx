@@ -11,7 +11,7 @@ export default function PriceDisplayBox({ value, label, showBadge = true }: Pric
     <div className="price-display-box">
       <span className="price-display-title">{label}</span>
       <div className="price-display-value">
-        R$ {value.toFixed(2)}
+        R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
       {showBadge && (
         <span className="price-display-subtitle">

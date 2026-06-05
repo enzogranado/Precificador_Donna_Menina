@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 // Tipagens
-import type { User, Material, MaterialUsado, Produto, CustoFixo, ConfiguracaoTempo } from './types';
+import type { User, Material, MaterialUsado, Produto, CustoFixo, ConfiguracaoTempo, Kit } from './types';
 
 const API_BASE = 'http://localhost:3001/api';
 
@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Materiais from './pages/Materiais';
 import Produtos from './pages/Produtos';
+import Kits from './pages/Kits';
 import CustosFixos from './pages/CustosFixos';
 
 export default function App() {
@@ -76,13 +77,32 @@ export default function App() {
     margemLucro: number;
     materiaisUsados: MaterialUsado[];
     rendimento: number;
+    precoVendaManual?: number;
   }>({
     nome: '',
     descricao: '',
     tempoProducao: 20,
     margemLucro: 40,
     materiaisUsados: [],
-    rendimento: 1
+    rendimento: 1,
+    precoVendaManual: undefined
+  });
+
+  // Kits (Aba Nova)
+  const [kits, setKits] = useState<Kit[]>([]);
+  const [searchKit, setSearchKit] = useState('');
+  const [isCreatingKit, setIsCreatingKit] = useState(false);
+  const [editingKitId, setEditingKitId] = useState<string | null>(null);
+  const [kitForm, setKitForm] = useState<{
+    nome: string;
+    descricao: string;
+    margemLucroKit: number;
+    produtos: { produtoId: string; quantidade: number }[];
+  }>({
+    nome: '',
+    descricao: '',
+    margemLucroKit: 0,
+    produtos: []
   });
 
   // Inserção temporária de material no produto
@@ -106,17 +126,19 @@ export default function App() {
 
     const carregarDados = async () => {
       try {
-        const [resMat, resCustos, resConfig, resProd] = await Promise.all([
+        const [resMat, resCustos, resConfig, resProd, resKits] = await Promise.all([
           fetch(`${API_BASE}/materiais`),
           fetch(`${API_BASE}/custosfixos`),
           fetch(`${API_BASE}/configtempo`),
-          fetch(`${API_BASE}/produtos`)
+          fetch(`${API_BASE}/produtos`),
+          fetch(`${API_BASE}/kits`)
         ]);
 
         if (resMat.ok) setMateriais(await resMat.json());
         if (resCustos.ok) setCustosFixos(await resCustos.json());
         if (resConfig.ok) setConfigTempo(await resConfig.json());
         if (resProd.ok) setProdutos(await resProd.json());
+        if (resKits.ok) setKits(await resKits.json());
       } catch (err) {
         console.error('Erro ao carregar dados do banco:', err);
       }
@@ -150,11 +172,19 @@ export default function App() {
     const custoMaoObra = prod.tempoProducao * custoPorMinuto;
     const custoTotal = custoMateriais + custoMaoObra;
 
-    // Preço de venda sugerido (Margem simples de markup multiplicada sobre o custo)
-    const precoVenda = custoTotal * (1 + prod.margemLucro / 100);
+    // Preço de venda sugerido (Fórmula Markup Divisor)
+    const divisor = (100 - prod.margemLucro) / 100;
+    const precoVenda = divisor > 0 ? (custoTotal / divisor) : custoTotal * 1.5;
 
     const lucroReal = precoVenda - custoTotal;
     const rendimento = prod.rendimento || 1;
+
+    const precoManualTotal = prod.precoVendaManual ? (prod.precoVendaManual * rendimento) : undefined;
+    const margemLucroManualReal = (precoManualTotal !== undefined && precoManualTotal > 0) 
+      ? ((precoManualTotal - custoTotal) / precoManualTotal) * 100 
+      : undefined;
+    const lucroManualReal = precoManualTotal !== undefined ? (precoManualTotal - custoTotal) : undefined;
+    const lucroManualUnitario = (lucroManualReal !== undefined) ? (lucroManualReal / rendimento) : undefined;
 
     return {
       custoMateriais,
@@ -164,7 +194,11 @@ export default function App() {
       lucroReal,
       precoVendaUnitario: precoVenda / rendimento,
       custoUnitario: custoTotal / rendimento,
-      lucroUnitario: lucroReal / rendimento
+      lucroUnitario: lucroReal / rendimento,
+      precoManualTotal,
+      margemLucroManualReal,
+      lucroManualReal,
+      lucroManualUnitario
     };
   };
 
@@ -429,7 +463,7 @@ export default function App() {
 
   const handleSaveProduto = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { nome, descricao, tempoProducao, margemLucro, materiaisUsados, rendimento } = produtoForm;
+    const { nome, descricao, tempoProducao, margemLucro, materiaisUsados, rendimento, precoVendaManual } = produtoForm;
 
     if (!nome.trim() || tempoProducao <= 0 || margemLucro < 0 || rendimento <= 0) {
       alert('Preencha os campos obrigatórios com valores válidos. A margem deve ser maior ou igual a 0% e o rendimento maior que 0.');
@@ -449,7 +483,8 @@ export default function App() {
         tempoProducao,
         margemLucro,
         rendimento,
-        materiaisUsados
+        materiaisUsados,
+        precoVendaManual
       };
 
       if (editingProdutoId) {
@@ -483,7 +518,8 @@ export default function App() {
         tempoProducao: 20,
         margemLucro: 40,
         materiaisUsados: [],
-        rendimento: 1
+        rendimento: 1,
+        precoVendaManual: undefined
       });
       setIsCreatingProduto(false);
     } catch (err) {
@@ -500,7 +536,8 @@ export default function App() {
       tempoProducao: prod.tempoProducao,
       margemLucro: prod.margemLucro,
       materiaisUsados: [...prod.materiaisUsados],
-      rendimento: prod.rendimento || 1
+      rendimento: prod.rendimento || 1,
+      precoVendaManual: prod.precoVendaManual
     });
     setIsCreatingProduto(true);
   };
@@ -520,6 +557,102 @@ export default function App() {
 
         setProdutos(prev => prev.filter(p => p.id !== id));
         if (expandedProdutoId === id) setExpandedProdutoId(null);
+      } catch (err) {
+        console.error(err);
+        alert('Ocorreu um erro ao conectar ao servidor.');
+      }
+    }
+  };
+
+  // ==========================================
+  // OPERAÇÕES: KITS DE PRODUTOS
+  // ==========================================
+
+  const handleSaveKit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { nome, descricao, margemLucroKit, produtos } = kitForm;
+
+    if (!nome.trim() || margemLucroKit < 0) {
+      alert('Preencha os campos obrigatórios com valores válidos.');
+      return;
+    }
+
+    if (produtos.length === 0) {
+      alert('Adicione pelo menos um produto ao kit.');
+      return;
+    }
+
+    try {
+      const body: any = {
+        nome: nome.trim(),
+        descricao: descricao.trim(),
+        margemLucroKit,
+        produtos
+      };
+
+      if (editingKitId) {
+        body.id = editingKitId;
+      }
+
+      const response = await fetch(`${API_BASE}/kits`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        alert(errData.error || 'Erro ao salvar kit.');
+        return;
+      }
+
+      const savedKit = await response.json();
+
+      if (editingKitId) {
+        setKits(prev => prev.map(k => k.id === editingKitId ? savedKit : k));
+        setEditingKitId(null);
+      } else {
+        setKits(prev => [savedKit, ...prev]);
+      }
+
+      setKitForm({
+        nome: '',
+        descricao: '',
+        margemLucroKit: 0,
+        produtos: []
+      });
+      setIsCreatingKit(false);
+    } catch (err) {
+      console.error(err);
+      alert('Ocorreu um erro ao conectar ao servidor.');
+    }
+  };
+
+  const handleEditKit = (kit: Kit) => {
+    setEditingKitId(kit.id);
+    setKitForm({
+      nome: kit.nome,
+      descricao: kit.descricao,
+      margemLucroKit: kit.margemLucroKit,
+      produtos: [...kit.produtos]
+    });
+    setIsCreatingKit(true);
+  };
+
+  const handleDeleteKit = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este kit?')) {
+      try {
+        const response = await fetch(`${API_BASE}/kits/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          alert(errData.error || 'Erro ao excluir kit.');
+          return;
+        }
+
+        setKits(prev => prev.filter(k => k.id !== id));
       } catch (err) {
         console.error(err);
         alert('Ocorreu um erro ao conectar ao servidor.');
@@ -612,6 +745,25 @@ export default function App() {
           handleSaveProduto={handleSaveProduto}
           handleEditProduto={handleEditProduto}
           handleDeleteProduto={handleDeleteProduto}
+          obterDetalhesPrecificacao={obterDetalhesPrecificacao}
+        />
+      )}
+
+      {activeTab === 'kits' && (
+        <Kits 
+          produtos={produtos}
+          kits={kits}
+          searchKit={searchKit}
+          setSearchKit={setSearchKit}
+          isCreatingKit={isCreatingKit}
+          setIsCreatingKit={setIsCreatingKit}
+          editingKitId={editingKitId}
+          setEditingKitId={setEditingKitId}
+          kitForm={kitForm}
+          setKitForm={setKitForm}
+          handleSaveKit={handleSaveKit}
+          handleEditKit={handleEditKit}
+          handleDeleteKit={handleDeleteKit}
           obterDetalhesPrecificacao={obterDetalhesPrecificacao}
         />
       )}

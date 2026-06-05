@@ -59,8 +59,8 @@ export default function Dashboard({
       <div className="metric-row">
         <MetricCard 
           label="Mão de Obra / Minuto" 
-          value={`R$ ${custoPorMinuto.toFixed(2)}`} 
-          badgeText={`R$ ${custoPorHora.toFixed(2)} / hora`}
+          value={`R$ ${custoPorMinuto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} 
+          badgeText={`R$ ${custoPorHora.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / hora`}
           variation="gold"
         />
         <MetricCard 
@@ -77,7 +77,7 @@ export default function Dashboard({
         />
         <MetricCard 
           label="Despesas Fixas Mensais" 
-          value={`R$ ${totalCustosFixos.toFixed(2)}`} 
+          value={`R$ ${totalCustosFixos.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} 
           badgeText="Luz, assinaturas, extras..."
         />
       </div>
@@ -127,14 +127,14 @@ export default function Dashboard({
                             </span>
                           )}
                         </td>
-                        <td>R$ {calc.custoTotal.toFixed(2)}</td>
+                        <td>R$ {calc.custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         <td className="font-bold" style={{ color: 'var(--color-gold)' }}>
-                          R$ {(rend > 1 ? calc.precoVendaUnitario : calc.precoVenda).toFixed(2)}
+                          R$ {(rend > 1 ? calc.precoVendaUnitario : calc.precoVenda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           {rend > 1 && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}> / un</span>}
                         </td>
                         <td><span className="badge gold">{p.margemLucro}%</span></td>
                         <td className="font-bold" style={{ color: 'var(--color-success)' }}>
-                          R$ {(rend > 1 ? calc.lucroUnitario : calc.lucroReal).toFixed(2)}
+                          R$ {(rend > 1 ? calc.lucroUnitario : calc.lucroReal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           {rend > 1 && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}> / un</span>}
                         </td>
                       </tr>
@@ -177,7 +177,7 @@ export default function Dashboard({
                     <tr key={m.id}>
                       <td>{m.nome}</td>
                       <td><span className="badge rose">{m.unidadeMedida}</span></td>
-                      <td className="font-bold">R$ {m.precoUnitario.toFixed(3)} / {m.unidadeMedida}</td>
+                      <td className="font-bold">R$ {m.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} / {m.unidadeMedida}</td>
                     </tr>
                   ))}
                 </tbody>

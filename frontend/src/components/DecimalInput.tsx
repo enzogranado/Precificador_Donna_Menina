@@ -7,7 +7,7 @@ interface DecimalInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 export default function DecimalInput({ value, onChange, ...props }: DecimalInputProps) {
   const [localValue, setLocalValue] = useState<string>(
-    value === undefined || isNaN(value) ? '' : value.toString().replace('.', ',')
+    value === undefined || value === null || isNaN(value) ? '' : value.toString().replace('.', ',')
   );
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,13 +15,14 @@ export default function DecimalInput({ value, onChange, ...props }: DecimalInput
   // Sync state if value changes externally (e.g. form reset, loading new product)
   useEffect(() => {
     if (document.activeElement !== inputRef.current) {
-      setLocalValue(value === undefined || isNaN(value) ? '' : value.toString().replace('.', ','));
+      setLocalValue(value === undefined || value === null || isNaN(value) ? '' : value.toString().replace('.', ','));
     } else {
       // If we are actively editing, only sync if the values differ numerically
       const parsedLocal = parseFloat(localValue.replace(',', '.'));
       const normalizedLocal = isNaN(parsedLocal) ? undefined : parsedLocal;
-      if (normalizedLocal !== value) {
-        setLocalValue(value === undefined || isNaN(value) ? '' : value.toString().replace('.', ','));
+      const normalizedValue = value === null ? undefined : value;
+      if (normalizedLocal !== normalizedValue) {
+        setLocalValue(value === undefined || value === null || isNaN(value) ? '' : value.toString().replace('.', ','));
       }
     }
   }, [value]);

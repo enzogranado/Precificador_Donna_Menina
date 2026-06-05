@@ -11,6 +11,7 @@ const ProdutoSchema = new Schema({
   tempoProducao: { type: Number, required: true },
   margemLucro: { type: Number, required: true },
   rendimento: { type: Number, required: true, default: 1 },
+  precoVendaManual: { type: Number },
   materiaisUsados: [MaterialUsadoSchema]
 }, {
   timestamps: true

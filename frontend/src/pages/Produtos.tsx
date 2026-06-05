@@ -17,8 +17,8 @@ interface ProdutosProps {
   setIsCreatingProduto: (v: boolean) => void;
   editingProdutoId: string | null;
   setEditingProdutoId: (v: string | null) => void;
-  produtoForm: { nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; };
-  setProdutoForm: React.Dispatch<React.SetStateAction<{ nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; }>>;
+  produtoForm: { nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; precoVendaManual?: number; };
+  setProdutoForm: React.Dispatch<React.SetStateAction<{ nome: string; descricao: string; tempoProducao: number; margemLucro: number; materiaisUsados: MaterialUsado[]; rendimento: number; precoVendaManual?: number; }>>;
   tempMaterialId: string;
   setTempMaterialId: (v: string) => void;
   tempQuantidade: string;
@@ -39,6 +39,10 @@ interface ProdutosProps {
     precoVendaUnitario: number;
     custoUnitario: number;
     lucroUnitario: number;
+    precoManualTotal?: number;
+    margemLucroManualReal?: number;
+    lucroManualReal?: number;
+    lucroManualUnitario?: number;
   };
 }
 
@@ -87,6 +91,13 @@ export default function Produtos({
     const lucroReal = precoVenda - custoTotal;
     const rendimento = produtoForm.rendimento || 1;
 
+    const precoManualTotal = produtoForm.precoVendaManual ? (produtoForm.precoVendaManual * rendimento) : undefined;
+    const margemLucroManualReal = (precoManualTotal !== undefined && precoManualTotal > 0)
+      ? ((precoManualTotal - custoTotal) / precoManualTotal) * 100
+      : undefined;
+    const lucroManualReal = precoManualTotal !== undefined ? (precoManualTotal - custoTotal) : undefined;
+    const lucroManualUnitario = (lucroManualReal !== undefined) ? (lucroManualReal / rendimento) : undefined;
+
     return {
       custoMateriais,
       custoMaoObra,
@@ -95,7 +106,12 @@ export default function Produtos({
       lucroReal,
       precoVendaUnitario: precoVenda / rendimento,
       custoUnitario: custoTotal / rendimento,
-      lucroUnitario: lucroReal / rendimento
+      lucroUnitario: lucroReal / rendimento,
+      precoVendaManual: produtoForm.precoVendaManual,
+      precoManualTotal,
+      margemLucroManualReal,
+      lucroManualReal,
+      lucroManualUnitario
     };
   };
 
@@ -160,6 +176,7 @@ export default function Produtos({
               {produtosFiltrados.map(p => {
                 const calc = obterDetalhesPrecificacao(p);
                 const isExpanded = expandedProdutoId === p.id;
+                const rend = p.rendimento || 1;
 
                 return (
                   <div 
@@ -197,17 +214,30 @@ export default function Produtos({
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        {p.precoVendaManual && p.precoVendaManual > 0 && (
+                          <div style={{ textAlign: 'right', borderRight: '1px solid rgba(197, 163, 94, 0.2)', paddingRight: '1.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                              Preço Praticado (Manual)
+                            </span>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                              R$ {p.precoVendaManual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                            <span style={{ fontSize: '0.75rem', color: (calc.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                              Margem: {(calc.margemLucroManualReal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                            </span>
+                          </div>
+                        )}
                         <div style={{ textAlign: 'right' }}>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            {p.rendimento && p.rendimento > 1 ? 'Venda Sugerida / Unidade' : 'Preço Venda Sugerido'}
+                            {p.rendimento && p.rendimento > 1 ? 'Sugerido / Unidade' : 'Preço Venda Sugerido'}
                           </span>
                           <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-gold)' }}>
-                            R$ {(p.rendimento && p.rendimento > 1 ? calc.precoVendaUnitario : calc.precoVenda).toFixed(2)}
+                            R$ {(p.rendimento && p.rendimento > 1 ? calc.precoVendaUnitario : calc.precoVenda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </div>
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
                             {p.rendimento && p.rendimento > 1 
-                              ? `Lucro Unitário: R$ ${calc.lucroUnitario.toFixed(2)}`
-                              : `Lucro Real: R$ ${calc.lucroReal.toFixed(2)}`
+                              ? `Lucro Unitário: R$ ${calc.lucroUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                              : `Lucro Real: R$ ${calc.lucroReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                             }
                           </span>
                         </div>
@@ -277,7 +307,7 @@ export default function Produtos({
                                           <td>{mat.nome}</td>
                                           <td>{mu.quantidadeNecessaria} {mat.unidadeMedida}</td>
                                           <td className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                                            R$ {custoProp.toFixed(2)}
+                                            R$ {custoProp.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                           </td>
                                         </tr>
                                       );
@@ -300,7 +330,7 @@ export default function Produtos({
                                   <span className="breakdown-dot" style={{ background: 'var(--color-rose)' }}></span>
                                   Custo de Insumos
                                 </span>
-                                <span className="breakdown-val">R$ {calc.custoMateriais.toFixed(2)}</span>
+                                <span className="breakdown-val">R$ {calc.custoMateriais.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                               </div>
 
                               <div className="breakdown-row">
@@ -308,21 +338,21 @@ export default function Produtos({
                                   <span className="breakdown-dot" style={{ background: 'var(--color-gold)' }}></span>
                                   Mão de Obra ({p.tempoProducao} min)
                                 </span>
-                                <span className="breakdown-val">R$ {calc.custoMaoObra.toFixed(2)}</span>
+                                <span className="breakdown-val">R$ {calc.custoMaoObra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                               </div>
 
                               <div className="breakdown-row" style={{ borderTop: '1px solid rgba(197, 163, 94, 0.15)', marginTop: '0.25rem', paddingTop: '0.5rem' }}>
                                 <span className="breakdown-name" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                                   Custo Total Fabricação
                                 </span>
-                                <span className="breakdown-val" style={{ fontSize: '0.95rem' }}>R$ {calc.custoTotal.toFixed(2)}</span>
+                                <span className="breakdown-val" style={{ fontSize: '0.95rem' }}>R$ {calc.custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                               </div>
 
                               <div className="breakdown-row">
                                 <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 700 }}>
                                   Lucro Esperado ({p.margemLucro}%)
                                 </span>
-                                <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {calc.lucroReal.toFixed(2)}</span>
+                                <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {calc.lucroReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                               </div>
                             </div>
                             {p.rendimento && p.rendimento > 1 && (
@@ -333,15 +363,42 @@ export default function Produtos({
                                 <div className="breakdown-table" style={{ background: '#ffffff', borderRadius: '8px', padding: '0.4rem', border: '1px solid rgba(197, 163, 94, 0.08)' }}>
                                   <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
                                     <span className="breakdown-name">Custo Unitário</span>
-                                    <span className="breakdown-val">R$ {calc.custoUnitario.toFixed(2)}</span>
+                                    <span className="breakdown-val">R$ {calc.custoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                   </div>
                                   <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
                                     <span className="breakdown-name" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Venda Sugerida/Un</span>
-                                    <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {calc.precoVendaUnitario.toFixed(2)}</span>
+                                    <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {calc.precoVendaUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                   </div>
                                   <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem', borderBottom: 'none' }}>
                                     <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 600 }}>Lucro Unitário</span>
-                                    <span className="breakdown-val success">R$ {calc.lucroUnitario.toFixed(2)}</span>
+                                    <span className="breakdown-val success">R$ {calc.lucroUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {p.precoVendaManual && p.precoVendaManual > 0 && (
+                              <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px dashed rgba(197, 163, 94, 0.25)' }}>
+                                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-rose)', marginBottom: '0.5rem' }}>
+                                  Análise do Preço Praticado (Manual)
+                                </h4>
+                                <div className="breakdown-table" style={{ background: '#ffffff', borderRadius: '8px', padding: '0.4rem', border: '1px solid rgba(197, 163, 94, 0.08)' }}>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
+                                    <span className="breakdown-name">Custo de Insumos / un</span>
+                                    <span className="breakdown-val">R$ {(calc.custoMateriais / rend).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
+                                    <span className="breakdown-name">Custo Mão de Obra / un</span>
+                                    <span className="breakdown-val">R$ {(calc.custoMaoObra / rend).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem' }}>
+                                    <span className="breakdown-name">Preço Praticado / un</span>
+                                    <span className="breakdown-val" style={{ color: 'var(--text-primary)', fontWeight: 800 }}>R$ {p.precoVendaManual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                  </div>
+                                  <div className="breakdown-row" style={{ padding: '0.4rem 0.25rem', borderBottom: 'none' }}>
+                                    <span className="breakdown-name" style={{ color: (calc.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>Margem Praticada</span>
+                                    <span className="breakdown-val" style={{ color: (calc.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 800 }}>
+                                      {(calc.margemLucroManualReal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -437,7 +494,7 @@ export default function Produtos({
                       value={produtoForm.tempoProducao}
                       onChange={e => setProdutoForm(prev => ({ ...prev, tempoProducao: parseInt(e.target.value) || 1 }))}
                     />
-                    <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Custo estimado M.O: R$ {(produtoForm.tempoProducao * custoPorMinuto).toFixed(2)}</p>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Custo estimado M.O: R$ {(produtoForm.tempoProducao * custoPorMinuto).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
 
                   <div className="form-group">
@@ -455,6 +512,23 @@ export default function Produtos({
                       onChange={e => setProdutoForm(prev => ({ ...prev, margemLucro: parseInt(e.target.value) || 5 }))}
                     />
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Base de cálculo: Markup Divisor Protetivo</p>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="prod-preco-manual">
+                      Preço de Venda Manual (R$)
+                    </label>
+                    <div className="input-wrapper">
+                      <span className="input-prefix">R$</span>
+                      <DecimalInput 
+                        id="prod-preco-manual"
+                        className="premium-input has-prefix"
+                        placeholder="Ex: 15,00 (deixe em branco para sugerido)"
+                        value={produtoForm.precoVendaManual}
+                        onChange={val => setProdutoForm(prev => ({ ...prev, precoVendaManual: val }))}
+                      />
+                    </div>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Indique o preço real por unidade que você deseja cobrar (opcional).</p>
                   </div>
                 </div>
 
@@ -484,7 +558,7 @@ export default function Produtos({
                         <option value="">-- Escolha um Insumo --</option>
                         {materiais.map(m => (
                           <option key={m.id} value={m.id}>
-                            {m.nome} (R$ {m.precoUnitario.toFixed(3)}/{m.unidadeMedida})
+                            {m.nome} (R$ {m.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}/{m.unidadeMedida})
                           </option>
                         ))}
                       </select>
@@ -558,12 +632,12 @@ export default function Produtos({
                                 style={{ width: '85px', padding: '0.2rem 0.4rem', height: '28px', fontSize: '0.85rem' }}
                               />
                               <span className="selected-material-meta" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                {mat.unidadeMedida} × R$ {mat.precoUnitario.toFixed(3)}
+                                {mat.unidadeMedida} × R$ {mat.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
                               </span>
                             </div>
                           </div>
                           <div className="selected-material-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <span className="selected-material-cost" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>R$ {custoItem.toFixed(2)}</span>
+                            <span className="selected-material-cost" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>R$ {custoItem.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             <button 
                               type="button" 
                               className="btn-danger-outline"
@@ -596,8 +670,7 @@ export default function Produtos({
                 <PriceDisplayBox value={resumoForm.precoVenda} label="Preço Venda Final Sugerido" />
 
                 <div className="metric-row" style={{ gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  <MetricCard label="Lucro Líquido Real" value={`R$ ${resumoForm.lucroReal.toFixed(2)}`} variation="success" />
-                  <MetricCard label="Multiplicador Markup" value={`${(resumoForm.precoVenda / (resumoForm.custoTotal || 1)).toFixed(2)}x`} variation="gold" />
+                  <MetricCard label="Lucro Líquido Real" value={`R$ ${resumoForm.lucroReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} variation="success" />
                 </div>
 
                 {/* Divisão dos custos */}
@@ -612,7 +685,7 @@ export default function Produtos({
                         <span className="breakdown-dot" style={{ background: 'var(--color-rose)' }}></span>
                         Custo de Insumos / Insumos
                       </span>
-                      <span className="breakdown-val">R$ {resumoForm.custoMateriais.toFixed(2)}</span>
+                      <span className="breakdown-val">R$ {resumoForm.custoMateriais.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
 
                     <div className="breakdown-row">
@@ -620,22 +693,23 @@ export default function Produtos({
                         <span className="breakdown-dot" style={{ background: 'var(--color-gold)' }}></span>
                         Tempo Mão de Obra ({produtoForm.tempoProducao} min)
                       </span>
-                      <span className="breakdown-val">R$ {resumoForm.custoMaoObra.toFixed(2)}</span>
+                      <span className="breakdown-val">R$ {resumoForm.custoMaoObra.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
 
                     <div className="breakdown-row" style={{ borderTop: '1px solid rgba(197, 163, 94, 0.12)', marginTop: '0.4rem', paddingTop: '0.8rem' }}>
                       <span className="breakdown-name" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                         Custo Total Acumulado
                       </span>
-                      <span className="breakdown-val" style={{ fontSize: '0.95rem' }}>R$ {resumoForm.custoTotal.toFixed(2)}</span>
+                      <span className="breakdown-val" style={{ fontSize: '0.95rem' }}>R$ {resumoForm.custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
 
                     <div className="breakdown-row">
-                      <span className="breakdown-name" style={{ fontWeight: 700, color: 'var(--color-success)' }}>
+                      <span className="breakdown-name">
+                        <span className="breakdown-dot" style={{ background: 'var(--color-success)', fontWeight: 700 }}></span>
                         Retorno / Margem Desejada
                         <span className="breakdown-percent">{produtoForm.margemLucro}%</span>
                       </span>
-                      <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {resumoForm.lucroReal.toFixed(2)}</span>
+                      <span className="breakdown-val success" style={{ fontSize: '0.95rem' }}>R$ {resumoForm.lucroReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </div>
 
@@ -647,15 +721,55 @@ export default function Produtos({
                       <div className="breakdown-table" style={{ background: 'var(--bg-subtle)', borderRadius: '8px', padding: '0.5rem' }}>
                         <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
                           <span className="breakdown-name">Custo por Sabonete/Vela</span>
-                          <span className="breakdown-val">R$ {resumoForm.custoUnitario.toFixed(2)}</span>
+                          <span className="breakdown-val">R$ {resumoForm.custoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                         <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
                           <span className="breakdown-name" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Preço de Venda Unitário</span>
-                          <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {resumoForm.precoVendaUnitario.toFixed(2)}</span>
+                          <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>R$ {resumoForm.precoVendaUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                         <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem', borderBottom: 'none' }}>
                           <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 600 }}>Lucro Líquido Individual</span>
-                          <span className="breakdown-val success">R$ {resumoForm.lucroUnitario.toFixed(2)}</span>
+                          <span className="breakdown-val success">R$ {resumoForm.lucroUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {resumoForm.precoVendaManual !== undefined && resumoForm.precoVendaManual > 0 && (
+                    <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px dashed rgba(197, 163, 94, 0.25)', animation: 'cardFadeIn 0.3s ease-out' }}>
+                      <h4 style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-rose)', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
+                        Análise do Preço Manual Praticado
+                      </h4>
+                      <div className="breakdown-table" style={{ background: 'var(--bg-subtle)', borderRadius: '8px', padding: '0.5rem' }}>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name">Preço Manual / un</span>
+                          <span className="breakdown-val" style={{ color: 'var(--color-gold)', fontWeight: 800 }}>
+                            R$ {resumoForm.precoVendaManual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name">Custo de Insumos / un</span>
+                          <span className="breakdown-val">
+                            R$ {(resumoForm.custoMateriais / (produtoForm.rendimento || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name">Custo Mão de Obra / un</span>
+                          <span className="breakdown-val">
+                            R$ {(resumoForm.custoMaoObra / (produtoForm.rendimento || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem' }}>
+                          <span className="breakdown-name" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Lucro Líquido / un</span>
+                          <span className="breakdown-val success" style={{ color: (resumoForm.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
+                            R$ {(resumoForm.lucroManualUnitario || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div className="breakdown-row" style={{ padding: '0.5rem 0.25rem', borderBottom: 'none' }}>
+                          <span className="breakdown-name" style={{ color: 'var(--color-success)', fontWeight: 600 }}>Margem Real Calculada</span>
+                          <span className="breakdown-val success" style={{ color: (resumoForm.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 800 }}>
+                            {(resumoForm.margemLucroManualReal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                          </span>
                         </div>
                       </div>
                     </div>

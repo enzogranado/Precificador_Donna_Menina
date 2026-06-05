@@ -110,7 +110,7 @@ export default function CustosFixos({
                 {custosFixos.map(cf => (
                   <tr key={cf.id}>
                     <td>{cf.nome}</td>
-                    <td className="font-bold">R$ {cf.valor.toFixed(2)}</td>
+                    <td className="font-bold">R$ {cf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td>
                       <button 
                         className="btn-danger-outline"
@@ -125,7 +125,7 @@ export default function CustosFixos({
                 <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700 }}>
                   <td>TOTAL ACUMULADO</td>
                   <td style={{ color: 'var(--color-gold)' }} colSpan={2}>
-                    R$ {totalCustosFixos.toFixed(2)} / mês
+                    R$ {totalCustosFixos.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / mês
                   </td>
                 </tr>
               </tbody>
@@ -151,7 +151,7 @@ export default function CustosFixos({
         <div className="form-group" style={{ marginBottom: '2rem' }}>
           <label className="form-label" htmlFor="param-prolabore">
             Salário / Pró-labore Desejado
-            <span className="form-label-value">R$ {configTempo.proLabore.toFixed(2)}</span>
+            <span className="form-label-value">R$ {configTempo.proLabore.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </label>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <input 
@@ -194,17 +194,17 @@ export default function CustosFixos({
             Valor de Mão de Obra Calculado
           </span>
           <div className="price-display-value" style={{ fontSize: '2.8rem', marginTop: '0.25rem', marginBottom: '0.25rem' }}>
-            R$ {custoPorMinuto.toFixed(2)} <span style={{ fontSize: '1.25rem', color: 'var(--text-muted)' }}>/ min</span>
+            R$ {custoPorMinuto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span style={{ fontSize: '1.25rem', color: 'var(--text-muted)' }}>/ min</span>
           </div>
           
           <div className="breakdown-table" style={{ fontSize: '0.85rem', marginTop: '1rem' }}>
             <div className="breakdown-row">
               <span className="breakdown-name">Custo por Hora</span>
-              <span className="breakdown-val">R$ {custoPorHora.toFixed(2)}</span>
+              <span className="breakdown-val">R$ {custoPorHora.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="breakdown-row">
               <span className="breakdown-name">Base de Custos Acumulada (Fixo + Salário)</span>
-              <span className="breakdown-val">R$ {totalDespesasTrabalho.toFixed(2)}</span>
+              <span className="breakdown-val">R$ {totalDespesasTrabalho.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="breakdown-row">
               <span className="breakdown-name">Total de Minutos de Trabalho</span>
@@ -213,7 +213,7 @@ export default function CustosFixos({
           </div>
 
           <InfoNote 
-            text={`Como isso te ajuda? Cada minuto que você passa moldando sabonetes ou envasando velas consome R$ ${custoPorMinuto.toFixed(2)} da sua estrutura geral. Esse cálculo é embutido na aba "Produtos" quando você define o tempo de fabricação de cada receita!`}
+            text={`Como isso te ajuda? Cada minuto que você passa moldando sabonetes ou envasando velas consome R$ ${custoPorMinuto.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} da sua estrutura geral. Esse cálculo é embutido na aba "Produtos" quando você define o tempo de fabricação de cada receita!`}
           />
         </div>
       </div>

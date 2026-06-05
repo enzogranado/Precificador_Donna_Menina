@@ -6,6 +6,7 @@ import custosFixosRouter from './custosFixos';
 import configTempoRouter from './configTempo';
 import produtosRouter from './produtos';
 import authRouter from './auth';
+import kitsRouter from './kits';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/custosfixos', custosFixosRouter);
 router.use('/configtempo', configTempoRouter);
 router.use('/produtos', produtosRouter);
 router.use('/auth', authRouter);
+router.use('/kits', kitsRouter);
 
 export default router;

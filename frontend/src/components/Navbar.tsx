@@ -1,4 +1,4 @@
-import { TrendingUp, Package, Layers, Briefcase } from 'lucide-react';
+import { TrendingUp, Package, Layers, Briefcase, Gift } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -26,6 +26,12 @@ export default function Navbar({ activeTab, setActiveTab, setIsCreatingProduto }
         onClick={() => { setActiveTab('produtos'); }}
       >
         <Layers size={16} /> Produtos e Receitas
+      </button>
+      <button 
+        className={`tab-button ${activeTab === 'kits' ? 'active' : ''}`}
+        onClick={() => { setActiveTab('kits'); setIsCreatingProduto(false); }}
+      >
+        <Gift size={16} /> Kits de Produtos
       </button>
       <button 
         className={`tab-button ${activeTab === 'custos' ? 'active' : ''}`}

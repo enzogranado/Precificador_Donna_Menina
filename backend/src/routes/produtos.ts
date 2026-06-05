@@ -14,6 +14,7 @@ router.get('/', async (_req: Request, res: Response): Promise<any> => {
       tempoProducao: doc.tempoProducao,
       margemLucro: doc.margemLucro,
       rendimento: doc.rendimento || 1,
+      precoVendaManual: (doc as any).precoVendaManual,
       materiaisUsados: doc.materiaisUsados.map(mu => ({
         materialId: mu.materialId,
         quantidadeNecessaria: mu.quantidadeNecessaria
@@ -28,7 +29,7 @@ router.get('/', async (_req: Request, res: Response): Promise<any> => {
 // POST /api/produtos -> Criar ou atualizar produto e receita
 router.post('/', async (req: Request, res: Response): Promise<any> => {
   try {
-    const { id, nome, descricao, tempoProducao, margemLucro, rendimento, materiaisUsados } = req.body;
+    const { id, nome, descricao, tempoProducao, margemLucro, rendimento, materiaisUsados, precoVendaManual } = req.body;
 
     if (!nome || tempoProducao === undefined || margemLucro === undefined || !materiaisUsados) {
       return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
@@ -42,6 +43,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         tempoProducao,
         margemLucro,
         rendimento: rendimento || 1,
+        precoVendaManual: precoVendaManual === undefined ? null : precoVendaManual,
         materiaisUsados
       }, { new: true });
 
@@ -54,6 +56,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         tempoProducao: doc.tempoProducao,
         margemLucro: doc.margemLucro,
         rendimento: doc.rendimento,
+        precoVendaManual: (doc as any).precoVendaManual,
         materiaisUsados: doc.materiaisUsados.map(mu => ({
           materialId: mu.materialId,
           quantidadeNecessaria: mu.quantidadeNecessaria
@@ -67,6 +70,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         tempoProducao,
         margemLucro,
         rendimento: rendimento || 1,
+        precoVendaManual: precoVendaManual === undefined ? null : precoVendaManual,
         materiaisUsados
       });
       await newDoc.save();
@@ -78,6 +82,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         tempoProducao: newDoc.tempoProducao,
         margemLucro: newDoc.margemLucro,
         rendimento: newDoc.rendimento,
+        precoVendaManual: (newDoc as any).precoVendaManual,
         materiaisUsados: newDoc.materiaisUsados.map(mu => ({
           materialId: mu.materialId,
           quantidadeNecessaria: mu.quantidadeNecessaria

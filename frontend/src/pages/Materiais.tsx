@@ -144,7 +144,7 @@ export default function Materiais({
             <div className="price-display-box" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
               <span className="price-display-title">Custo Unitário Calculado</span>
               <div className="price-display-value" style={{ fontSize: '1.8rem' }}>
-                R$ {(materialForm.precoTotal / materialForm.quantidadeTotal).toFixed(3)}
+                R$ {(materialForm.precoTotal / materialForm.quantidadeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
               </div>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                 por {materialForm.unidadeMedida} de insumo
@@ -208,14 +208,14 @@ export default function Materiais({
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {m.id}</span>
                     </td>
                     <td>
-                      <div style={{ fontSize: '0.85rem' }}>R$ {m.precoTotal.toFixed(2)}</div>
+                      <div style={{ fontSize: '0.85rem' }}>R$ {m.precoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                         Qtd: {m.quantidadeTotal} {m.unidadeMedida}
                       </span>
                     </td>
                     <td>
                       <div className="font-bold" style={{ color: 'var(--color-gold)' }}>
-                        R$ {m.precoUnitario.toFixed(3)}
+                        R$ {m.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
                       </div>
                       <span className="badge-unit">por {m.unidadeMedida}</span>
                     </td>

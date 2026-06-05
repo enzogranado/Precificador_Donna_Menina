@@ -25,6 +25,7 @@ export interface Produto {
   margemLucro: number; // em %
   materiaisUsados: MaterialUsado[];
   rendimento: number; // quantidade de unidades produzidas por lote/barra
+  precoVendaManual?: number;
 }
 
 export interface CustoFixo {
@@ -36,4 +37,17 @@ export interface CustoFixo {
 export interface ConfiguracaoTempo {
   proLabore: number;
   horasTrabalhoMes: number;
+}
+
+export interface ProdutoNoKit {
+  produtoId: string;
+  quantidade: number;
+}
+
+export interface Kit {
+  id: string;
+  nome: string;
+  descricao: string;
+  margemLucroKit: number;
+  produtos: ProdutoNoKit[];
 }
