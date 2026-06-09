@@ -66,7 +66,7 @@ export default function CustosFixos({
               />
             </div>
 
-            <div className="form-group" style={{ marginBottom: 0, maxWidth: '160px' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" htmlFor="custo-val">Valor Mensal *</label>
               <div className="input-wrapper">
                 <span className="input-prefix">R$</span>

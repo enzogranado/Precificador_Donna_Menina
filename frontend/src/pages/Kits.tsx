@@ -221,7 +221,7 @@ export default function Kits({
                       boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div className="product-card-header">
                       <div>
                         <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>{k.nome}</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', maxWidth: '600px' }}>
@@ -240,27 +240,27 @@ export default function Kits({
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      <div className="product-card-actions">
+                        <div className="product-price-block">
+                          <span className="price-label">
                             Preço do Kit
                           </span>
-                          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-gold)' }}>
+                          <div className="price-value" style={{ color: 'var(--color-gold)' }}>
                             R$ {calc.precoVendaFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </div>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
+                          <span className="price-subtitle" style={{ color: 'var(--color-success)' }}>
                             Lucro Total: R$ {calc.lucroTotalAcumulado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <div className="product-btns-col">
                           <button 
                             className="btn-premium btn-sm"
                             onClick={() => setExpandedKitId(isExpanded ? null : k.id)}
                           >
                             {isExpanded ? 'Ocultar Detalhes' : 'Ver Composição'}
                           </button>
-                          <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'stretch' }}>
+                          <div className="product-btns-row">
                             <button 
                               className="btn-danger-outline" 
                               style={{ flex: 1, color: 'var(--color-gold)', borderColor: 'rgba(197, 163, 94, 0.2)' }}

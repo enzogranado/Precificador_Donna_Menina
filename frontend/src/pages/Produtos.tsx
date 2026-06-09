@@ -188,7 +188,7 @@ export default function Produtos({
                       boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div className="product-card-header">
                       <div>
                         <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>{p.nome}</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem', maxWidth: '600px' }}>
@@ -213,28 +213,28 @@ export default function Produtos({
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                      <div className="product-card-actions">
                         {p.precoVendaManual && p.precoVendaManual > 0 && (
-                          <div style={{ textAlign: 'right', borderRight: '1px solid rgba(197, 163, 94, 0.2)', paddingRight: '1.5rem' }}>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                          <div className="product-price-block" style={{ borderRight: '1px solid rgba(197, 163, 94, 0.2)', paddingRight: '1.5rem' }}>
+                            <span className="price-label" style={{ color: 'var(--text-muted)' }}>
                               Preço Praticado (Manual)
                             </span>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                            <div className="price-value" style={{ color: 'var(--text-primary)' }}>
                               R$ {p.precoVendaManual.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
-                            <span style={{ fontSize: '0.75rem', color: (calc.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                            <span className="price-subtitle" style={{ color: (calc.lucroManualUnitario || 0) >= 0 ? 'var(--color-success)' : 'var(--color-danger)' }}>
                               Margem: {(calc.margemLucroManualReal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
                             </span>
                           </div>
                         )}
-                        <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <div className="product-price-block">
+                          <span className="price-label">
                             {p.rendimento && p.rendimento > 1 ? 'Sugerido / Unidade' : 'Preço Venda Sugerido'}
                           </span>
-                          <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-gold)' }}>
+                          <div className="price-value" style={{ color: 'var(--color-gold)' }}>
                             R$ {(p.rendimento && p.rendimento > 1 ? calc.precoVendaUnitario : calc.precoVenda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </div>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
+                          <span className="price-subtitle" style={{ color: 'var(--color-success)' }}>
                             {p.rendimento && p.rendimento > 1 
                               ? `Lucro Unitário: R$ ${calc.lucroUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                               : `Lucro Real: R$ ${calc.lucroReal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -242,14 +242,14 @@ export default function Produtos({
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <div className="product-btns-col">
                           <button 
                             className="btn-premium btn-sm"
                             onClick={() => setExpandedProdutoId(isExpanded ? null : p.id)}
                           >
                             {isExpanded ? 'Esconder Receita' : 'Ver Detalhes'}
                           </button>
-                          <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'stretch' }}>
+                          <div className="product-btns-row">
                             <button 
                               className="btn-danger-outline" 
                               style={{ flex: 1, color: 'var(--color-gold)', borderColor: 'rgba(197, 163, 94, 0.2)' }}

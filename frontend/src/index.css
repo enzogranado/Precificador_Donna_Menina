@@ -907,17 +907,453 @@ body {
   right: 1.5rem;
 }
 
-@media (max-width: 768px) {
+/* Card de Produto / Kit — Layout principal */
+.product-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.product-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.product-price-block {
+  text-align: right;
+}
+
+.product-price-block .price-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.product-price-block .price-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.product-price-block .price-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.product-btns-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.product-btns-row {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: stretch;
+}
+
+/* =============================================
+   RESPONSIVIDADE MOBILE
+   ============================================= */
+
+/* Tablet (até 1024px) */
+@media (max-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+
   .app-container {
     padding: 1.5rem 1rem;
   }
+
+  .premium-card {
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .price-display-value {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile (até 768px) */
+@media (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  .app-container {
+    padding: 1rem 0.75rem;
+  }
+
+  /* Header */
   .logout-container {
     position: static;
     display: flex;
     justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .app-header {
     margin-bottom: 1.5rem;
   }
+
   .brand-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    letter-spacing: 1px;
+  }
+
+  .brand-subtitle {
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+
+  /* Navbar Tabs — scroll horizontal no mobile */
+  .tabs-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    padding: 0.35rem;
+    gap: 0.3rem;
+    max-width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-button {
+    white-space: nowrap;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    min-width: max-content;
+    gap: 0.35rem;
+  }
+
+  /* Cards */
+  .premium-card {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+  }
+
+  .card-title-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  /* Forms */
+  .form-label {
+    font-size: 0.8rem;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .premium-input, .premium-select, .premium-textarea {
+    font-size: 0.9rem;
+    padding: 0.7rem 0.85rem;
+  }
+
+  .flex-row-gap {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .two-col-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Métricas */
+  .metric-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .metric-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .metric-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.35rem;
+  }
+
+  .metric-value {
+    font-size: 1.25rem;
+  }
+
+  /* Price Display */
+  .price-display-box {
+    padding: 1.5rem 1rem;
+  }
+
+  .price-display-value {
+    font-size: 2.2rem;
+  }
+
+  .price-display-title {
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+  }
+
+  /* Tabelas */
+  .table-container {
+    border-radius: 8px;
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+  }
+
+  .premium-table th {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .premium-table td {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  /* Botões */
+  .btn-premium {
+    padding: 0.65rem 1.1rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .btn-premium.btn-sm {
+    width: auto;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  /* Breakdown rows */
+  .breakdown-row {
+    padding: 0.6rem 0.25rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .breakdown-name {
+    font-size: 0.8rem;
+  }
+
+  .breakdown-val {
+    font-size: 0.85rem;
+  }
+
+  /* Info Note */
+  .info-note {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+  }
+
+  /* Login */
+  .login-card {
+    padding: 2rem 1.5rem;
+    margin: 0 0.5rem;
+  }
+
+  .login-logo {
+    font-size: 1.8rem;
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  /* Selected materials list */
+  .selected-materials-list {
+    padding: 0.75rem;
+    max-height: 200px;
+  }
+
+  .selected-material-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  /* Badges */
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .badge-unit {
+    font-size: 0.7rem;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 3rem !important;
+    padding-top: 1.5rem !important;
+  }
+
+  /* Product / Kit card layout */
+  .product-card-header {
+    flex-direction: column;
+  }
+
+  .product-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .product-price-block {
+    text-align: left;
+    border-right: none !important;
+    padding-right: 0 !important;
+    border-bottom: 1px solid rgba(197, 163, 94, 0.15);
+    padding-bottom: 0.75rem;
+  }
+
+  .product-price-block .price-value {
+    font-size: 1.4rem;
+  }
+
+  .product-btns-col {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .product-btns-col .btn-premium.btn-sm {
+    flex: 1;
+  }
+
+  .product-btns-row {
+    flex: 0 0 auto;
+  }
+}
+
+/* Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  .app-container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .brand-title {
+    font-size: 1.5rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+  }
+
+  .premium-card {
+    padding: 1rem 0.75rem;
+    border-radius: 10px;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+    letter-spacing: 0.25px;
+  }
+
+  /* Metric grid: full width stacked on tiny screens */
+  .metric-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .metric-value {
+    font-size: 1.1rem;
+  }
+
+  .metric-label {
+    font-size: 0.65rem;
+  }
+
+  .price-display-value {
+    font-size: 1.8rem;
+  }
+
+  /* Tabs ficam menores */
+  .tab-button {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  /* Tabelas — forçar scroll horizontal */
+  .table-container {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+
+  .premium-table th,
+  .premium-table td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.75rem;
+  }
+
+  /* Login */
+  .login-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .login-logo {
+    font-size: 1.5rem;
+  }
+
+  .login-title {
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Botões */
+  .btn-premium {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  /* Range sliders legíveis */
+  .premium-range {
+    height: 8px;
+  }
+
+  .premium-range::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Breakdown */
+  .breakdown-name {
+    font-size: 0.75rem;
+  }
+
+  .breakdown-val {
+    font-size: 0.8rem;
   }
 }
