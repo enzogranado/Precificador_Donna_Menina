@@ -468,12 +468,21 @@ export default function Produtos({
                   </label>
                   <input 
                     id="prod-rendimento"
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputMode="numeric"
                     className="premium-input"
                     placeholder="Ex: 8 sabonetes da barra, 1 vela..."
-                    value={produtoForm.rendimento}
-                    onChange={e => setProdutoForm(prev => ({ ...prev, rendimento: Math.max(1, parseInt(e.target.value) || 1) }))}
+                    value={produtoForm.rendimento === 0 ? '' : produtoForm.rendimento}
+                    onChange={e => {
+                      const cleanVal = e.target.value.replace(/[^0-9]/g, '').replace(/^0+/, '');
+                      const parsed = parseInt(cleanVal, 10);
+                      setProdutoForm(prev => ({ ...prev, rendimento: isNaN(parsed) ? 0 : parsed }));
+                    }}
+                    onBlur={() => {
+                      if (produtoForm.rendimento === 0) {
+                        setProdutoForm(prev => ({ ...prev, rendimento: 1 }));
+                      }
+                    }}
                     required
                   />
                   <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Indique quantas unidades menores esta receita/barra rende (padrão: 1).</p>
