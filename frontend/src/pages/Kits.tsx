@@ -430,17 +430,28 @@ export default function Kits({
                 <div className="form-group">
                   <label className="form-label" htmlFor="kit-margem">
                     Margem de Lucro Extra do Kit
-                    <span className="form-label-value">{kitForm.margemLucroKit}%</span>
                   </label>
-                  <input 
-                    id="kit-margem"
-                    type="range"
-                    min="0"
-                    max="95"
-                    className="premium-range"
-                    value={kitForm.margemLucroKit}
-                    onChange={e => setKitForm(prev => ({ ...prev, margemLucroKit: parseInt(e.target.value) || 0 }))}
-                  />
+                  <div className="input-wrapper">
+                    <input 
+                      id="kit-margem"
+                      type="text"
+                      inputMode="numeric"
+                      className="premium-input has-suffix-percent"
+                      placeholder="Ex: 10"
+                      value={kitForm.margemLucroKit === 0 ? '' : kitForm.margemLucroKit}
+                      onChange={e => {
+                        const cleanVal = e.target.value.replace(/[^0-9]/g, '');
+                        const parsed = parseInt(cleanVal, 10);
+                        setKitForm(prev => ({ ...prev, margemLucroKit: isNaN(parsed) ? 0 : parsed }));
+                      }}
+                      onBlur={() => {
+                        if (kitForm.margemLucroKit > 99) {
+                          setKitForm(prev => ({ ...prev, margemLucroKit: 99 }));
+                        }
+                      }}
+                    />
+                    <span className="input-suffix">%</span>
+                  </div>
                   <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Defina 0% para repassar os lucros já embutidos nos produtos individuais, ou adicione uma margem extra sobre o kit completo.</p>
                 </div>
 

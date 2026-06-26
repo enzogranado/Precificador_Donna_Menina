@@ -276,6 +276,15 @@ body {
   pointer-events: none;
 }
 
+.input-suffix {
+  position: absolute;
+  right: 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
 .premium-input, .premium-select, .premium-textarea {
   width: 100%;
   padding: 0.8rem 1rem;
@@ -297,6 +306,14 @@ body {
 
 .premium-input.has-prefix {
   padding-left: 2.2rem;
+}
+
+.premium-input.has-suffix {
+  padding-right: 5.5rem;
+}
+
+.premium-input.has-suffix-percent {
+  padding-right: 2.2rem;
 }
 
 .premium-textarea {

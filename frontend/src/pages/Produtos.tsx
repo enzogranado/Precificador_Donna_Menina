@@ -492,34 +492,60 @@ export default function Produtos({
                   <div className="form-group">
                     <label className="form-label" htmlFor="prod-tempo">
                       Tempo de Confecção *
-                      <span className="form-label-value">{produtoForm.tempoProducao} minutos</span>
                     </label>
-                    <input 
-                      id="prod-tempo"
-                      type="range"
-                      min="1"
-                      max="240"
-                      className="premium-range"
-                      value={produtoForm.tempoProducao}
-                      onChange={e => setProdutoForm(prev => ({ ...prev, tempoProducao: parseInt(e.target.value) || 1 }))}
-                    />
+                    <div className="input-wrapper">
+                      <input 
+                        id="prod-tempo"
+                        type="text"
+                        inputMode="numeric"
+                        className="premium-input has-suffix"
+                        placeholder="Ex: 20"
+                        value={produtoForm.tempoProducao === 0 ? '' : produtoForm.tempoProducao}
+                        onChange={e => {
+                          const cleanVal = e.target.value.replace(/[^0-9]/g, '');
+                          const parsed = parseInt(cleanVal, 10);
+                          setProdutoForm(prev => ({ ...prev, tempoProducao: isNaN(parsed) ? 0 : parsed }));
+                        }}
+                        onBlur={() => {
+                          if (produtoForm.tempoProducao === 0) {
+                            setProdutoForm(prev => ({ ...prev, tempoProducao: 1 }));
+                          }
+                        }}
+                        required
+                      />
+                      <span className="input-suffix">minutos</span>
+                    </div>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Custo estimado M.O: R$ {(produtoForm.tempoProducao * custoPorMinuto).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="prod-margem">
                       Margem de Lucro Desejada *
-                      <span className="form-label-value">{produtoForm.margemLucro}%</span>
                     </label>
-                    <input 
-                      id="prod-margem"
-                      type="range"
-                      min="5"
-                      max="95"
-                      className="premium-range"
-                      value={produtoForm.margemLucro}
-                      onChange={e => setProdutoForm(prev => ({ ...prev, margemLucro: parseInt(e.target.value) || 5 }))}
-                    />
+                    <div className="input-wrapper">
+                      <input 
+                        id="prod-margem"
+                        type="text"
+                        inputMode="numeric"
+                        className="premium-input has-suffix-percent"
+                        placeholder="Ex: 40"
+                        value={produtoForm.margemLucro === 0 ? '' : produtoForm.margemLucro}
+                        onChange={e => {
+                          const cleanVal = e.target.value.replace(/[^0-9]/g, '');
+                          const parsed = parseInt(cleanVal, 10);
+                          setProdutoForm(prev => ({ ...prev, margemLucro: isNaN(parsed) ? 0 : parsed }));
+                        }}
+                        onBlur={() => {
+                          if (produtoForm.margemLucro === 0) {
+                            setProdutoForm(prev => ({ ...prev, margemLucro: 5 }));
+                          } else if (produtoForm.margemLucro > 99) {
+                            setProdutoForm(prev => ({ ...prev, margemLucro: 99 }));
+                          }
+                        }}
+                        required
+                      />
+                      <span className="input-suffix">%</span>
+                    </div>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Base de cálculo: Markup Divisor Protetivo</p>
                   </div>
 
