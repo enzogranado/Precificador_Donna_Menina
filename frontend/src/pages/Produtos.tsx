@@ -591,11 +591,13 @@ export default function Produtos({
                         onChange={e => setTempMaterialId(e.target.value)}
                       >
                         <option value="">-- Escolha um Insumo --</option>
-                        {materiais.map(m => (
-                          <option key={m.id} value={m.id}>
-                            {m.nome} (R$ {m.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}/{m.unidadeMedida})
-                          </option>
-                        ))}
+                        {[...materiais]
+                          .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }))
+                          .map(m => (
+                            <option key={m.id} value={m.id}>
+                              {m.nome} (R$ {m.precoUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}/{m.unidadeMedida})
+                            </option>
+                          ))}
                       </select>
                     </div>
 
